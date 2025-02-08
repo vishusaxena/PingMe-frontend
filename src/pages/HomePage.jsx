@@ -8,11 +8,13 @@ import {
   InputAdornment,
   IconButton,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import Toastify CSS
 
 const HomePage = () => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -34,12 +36,11 @@ const HomePage = () => {
     setTabIndex(newIndex);
   };
 
-  // Upload image to Cloudinary
   const uploadImage = async (file) => {
     setLoading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "chat-app"); // Replace with your Cloudinary preset
+    formData.append("upload_preset", "chat-app");
 
     try {
       const response = await axios.post(
@@ -55,7 +56,6 @@ const HomePage = () => {
     }
   };
 
-  // Signup Function
   const handleSignup = async () => {
     if (
       !signupData.name ||
@@ -101,7 +101,6 @@ const HomePage = () => {
     setLoading(false);
   };
 
-  // Login Function
   const handleLogin = async () => {
     if (!loginData.email || !loginData.password) {
       toast.error("Email and password are required!");
@@ -114,7 +113,6 @@ const HomePage = () => {
         "http://localhost:5000/api/user/login",
         loginData
       );
-
       toast.success("Login successful! Redirecting...");
       localStorage.setItem("userInfo", JSON.stringify(data));
       navigate("/chat");
@@ -130,28 +128,41 @@ const HomePage = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#FFD95F",
+        backgroundColor: "#1E1E1E",
         minHeight: "100vh",
+        fontFamily: "'Poppins', sans-serif",
       }}
     >
       <Box
         sx={{
           width: 400,
-          bgcolor: "white",
-          p: 3,
-          borderRadius: 2,
-          boxShadow: 3,
+          bgcolor: "#333",
+          p: 4,
+          borderRadius: 3,
+          boxShadow: 5,
+          textAlign: "center",
+          color: "white",
         }}
       >
-        {/* Tabs for Login & Signup */}
-        <Tabs value={tabIndex} onChange={handleTabChange} centered>
-          <Tab label="Login" />
-          <Tab label="Signup" />
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: "bold", mb: 2, color: "#FFD95F" }}
+        >
+          PingMe
+        </Typography>
+
+        <Tabs
+          value={tabIndex}
+          onChange={handleTabChange}
+          centered
+          textColor="inherit"
+        >
+          <Tab label="Login" sx={{ color: "white" }} />
+          <Tab label="Signup" sx={{ color: "white" }} />
         </Tabs>
 
         {tabIndex === 0 ? (
-          // Login Form
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 3 }}>
             <TextField
               fullWidth
               label="Email"
@@ -162,6 +173,7 @@ const HomePage = () => {
               onChange={(e) =>
                 setLoginData({ ...loginData, email: e.target.value })
               }
+              sx={{ bgcolor: "white", borderRadius: 1 }}
             />
             <TextField
               fullWidth
@@ -173,6 +185,7 @@ const HomePage = () => {
               onChange={(e) =>
                 setLoginData({ ...loginData, password: e.target.value })
               }
+              sx={{ bgcolor: "white", borderRadius: 1 }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -185,9 +198,8 @@ const HomePage = () => {
             />
             <Button
               variant="contained"
-              color="primary"
+              sx={{ mt: 2, backgroundColor: "#FFD95F", color: "#333" }}
               fullWidth
-              sx={{ mt: 2 }}
               onClick={handleLogin}
               disabled={loading}
             >
@@ -195,8 +207,7 @@ const HomePage = () => {
             </Button>
           </Box>
         ) : (
-          // Signup Form
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 3 }}>
             <TextField
               fullWidth
               label="Name"
@@ -206,6 +217,7 @@ const HomePage = () => {
               onChange={(e) =>
                 setSignupData({ ...signupData, name: e.target.value })
               }
+              sx={{ bgcolor: "white", borderRadius: 1 }}
             />
             <TextField
               fullWidth
@@ -217,6 +229,7 @@ const HomePage = () => {
               onChange={(e) =>
                 setSignupData({ ...signupData, email: e.target.value })
               }
+              sx={{ bgcolor: "white", borderRadius: 1 }}
             />
             <TextField
               fullWidth
@@ -228,6 +241,7 @@ const HomePage = () => {
               onChange={(e) =>
                 setSignupData({ ...signupData, password: e.target.value })
               }
+              sx={{ bgcolor: "white", borderRadius: 1 }}
             />
             <TextField
               fullWidth
@@ -242,6 +256,7 @@ const HomePage = () => {
                   confirmPassword: e.target.value,
                 })
               }
+              sx={{ bgcolor: "white", borderRadius: 1 }}
             />
             <input
               type="file"
@@ -249,13 +264,12 @@ const HomePage = () => {
               onChange={(e) =>
                 setSignupData({ ...signupData, pic: e.target.files[0] })
               }
-              style={{ marginTop: "10px" }}
+              style={{ marginTop: "10px", color: "white" }}
             />
             <Button
               variant="contained"
-              color="primary"
+              sx={{ mt: 2, backgroundColor: "#FFD95F", color: "#333" }}
               fullWidth
-              sx={{ mt: 2 }}
               onClick={handleSignup}
               disabled={loading}
             >
