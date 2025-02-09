@@ -8,10 +8,14 @@ import {
   Avatar,
   ListItemText,
   CircularProgress,
+  Button,
+  IconButton,
 } from "@mui/material";
 import axios from "axios";
 import { ChatState } from "../Context/ChatProvider";
 import { toast } from "react-toastify";
+import AddIcon from "@mui/icons-material/Add";
+import GroupChatModal from "./GroupChatModal";
 
 const MyChats = () => {
   const [loading, setLoading] = useState(false);
@@ -57,9 +61,24 @@ const MyChats = () => {
         overflowY: "auto",
       }}
     >
-      <Typography variant="h6" fontWeight="bold" mb={2}>
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        mb={2}
+        fontSize={40}
+        sx={{ display: "flex", justifyContent: "space-between" }}
+      >
         My Chats
+        <GroupChatModal>
+          <Button sx={{ color: "white", border: 1 }}>
+            <IconButton color="primary">
+              <AddIcon />
+            </IconButton>
+            New Group Chat
+          </Button>
+        </GroupChatModal>
       </Typography>
+
       {loading ? (
         <CircularProgress
           sx={{ display: "block", mx: "auto", color: "white" }}
