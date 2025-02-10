@@ -3,8 +3,7 @@ import { Modal, Box, Typography, Button, IconButton } from "@mui/material";
 import { Visibility } from "@mui/icons-material";
 import { ChatState } from "../Context/ChatProvider"; // Import ChatState
 
-const ProfileModal = ({ children }) => {
-  const { user } = ChatState(); // Get user from context
+const ProfileModal = ({ user, children }) => {
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);

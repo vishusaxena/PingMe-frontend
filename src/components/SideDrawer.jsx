@@ -152,7 +152,7 @@ const ChatHeader = () => {
             open={Boolean(profileMenuAnchor)}
             onClose={() => setProfileMenuAnchor(null)}
           >
-            <ProfileModal>
+            <ProfileModal user={user}>
               <MenuItem>My Profile</MenuItem>
             </ProfileModal>
             <Divider />

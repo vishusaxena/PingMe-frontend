@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import AddIcon from "@mui/icons-material/Add";
 import GroupChatModal from "./GroupChatModal";
 
-const MyChats = () => {
+const MyChats = ({ fetchAgain }) => {
   const [loading, setLoading] = useState(false);
   const { user, chats, setChats, selectedChat, setSelectedChat } = ChatState();
 
@@ -46,7 +46,7 @@ const MyChats = () => {
 
   useEffect(() => {
     fetchChats();
-  }, [user]);
+  }, [user, fetchAgain]);
 
   return (
     <Box
