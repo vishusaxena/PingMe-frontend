@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import SendIcon from "@mui/icons-material/Send"; // Import the icon
-
+import SendIcon from "@mui/icons-material/Send";
 import {
   Box,
   Typography,
@@ -33,7 +32,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
 
-  // State for Snackbar (Material UI's notification system)
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
@@ -52,23 +50,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
-
     try {
       const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
+        headers: { Authorization: `Bearer ${user.token}` },
       };
-
       setLoading(true);
       const { data } = await axios.get(
         `http://localhost:5000/api/message/${selectedChat._id}`,
         config
       );
-
       setMessages(data);
       setLoading(false);
-
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       setSnackbarMessage("Failed to Load Messages");
@@ -79,7 +71,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" || event.type === "click") {
+      if (!newMessage.trim()) return; // Prevent sending empty messages
+
       socket.emit("stop typing", selectedChat._id);
+
       try {
         const config = {
           headers: {
@@ -87,22 +82,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             Authorization: `Bearer ${user.token}`,
           },
         };
+
+        const requestData = {
+          content: newMessage.trim(),
+          chatId: selectedChat?._id, // Ensure chatId is valid
+        };
+
+        console.log("Sending message:", requestData); // Debug request
+
         const { data } = await axios.post(
           "http://localhost:5000/api/message",
-          {
-            content: newMessage,
-            chatId: selectedChat._id,
-          },
+          requestData,
           config
         );
 
-        setNewMessage("");
-        setMessages((prevMessages) => [...prevMessages, data]);
-
-        socket.emit("new message", data);
-
-        fetchMessages(); // Force update messages after sending
+        setNewMessage(""); // Clear input
+        setMessages((prevMessages) => [...prevMessages, data]); // Update UI immediately
+        socket.emit("new message", data); // Emit message to socket
       } catch (error) {
+        console.error("Send message error:", error.response?.data || error);
         setSnackbarMessage("Failed to send the Message");
         setSnackbarSeverity("error");
         setOpenSnackbar(true);
@@ -116,6 +114,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -126,7 +128,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("message received", (newMessageReceived) => {
+    const messageHandler = (newMessageReceived) => {
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageReceived.chat._id
@@ -138,24 +140,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       } else {
         setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
-    });
-  });
+    };
+
+    socket.on("message received", messageHandler);
+
+    return () => {
+      socket.off("message received", messageHandler); // Cleanup to prevent duplicates
+    };
+  }, [selectedChat]);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
-
     if (!socketConnected) return;
-
     if (!typing) {
       setTyping(true);
       socket.emit("typing", selectedChat._id);
     }
-
     let lastTypingTime = new Date().getTime();
-    var timerLength = 3000;
+    let timerLength = 3000;
     setTimeout(() => {
-      var timeNow = new Date().getTime();
-      var timeDiff = timeNow - lastTypingTime;
+      let timeNow = new Date().getTime();
+      let timeDiff = timeNow - lastTypingTime;
       if (timeDiff >= timerLength && typing) {
         socket.emit("stop typing", selectedChat._id);
         setTyping(false);
@@ -167,125 +172,103 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     <>
       {selectedChat ? (
         <>
-          <Typography
-            variant="h5"
+          <Box
             sx={{
-              pb: 2,
-              px: 2,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              color: "white",
             }}
           >
             <IconButton
-              sx={{ display: { xs: "flex", md: "none" } }}
+              sx={{ color: "white", display: { xs: "flex", md: "none" } }}
               onClick={() => setSelectedChat("")}
             >
               <ArrowBackIcon />
             </IconButton>
-            {messages &&
-              (!selectedChat.isGroupChat ? (
-                <>
-                  {getSender(user, selectedChat.users)}
-                  <ProfileModal
-                    user={getSenderFull(user, selectedChat.users)}
-                  />
-                </>
-              ) : (
-                <>
-                  {selectedChat.chatName.toUpperCase()}
-                  <UpdateGroupChatModal
-                    fetchMessages={fetchMessages}
-                    fetchAgain={fetchAgain}
-                    setFetchAgain={setFetchAgain}
-                  />
-                </>
-              ))}
-          </Typography>
+            <Typography
+              variant="h6"
+              fontFamily="'Poppins', sans-serif"
+              fontWeight="500"
+            >
+              {selectedChat.isGroupChat
+                ? selectedChat.chatName.toUpperCase()
+                : getSender(user, selectedChat.users)}
+            </Typography>
+            {!selectedChat.isGroupChat ? (
+              <ProfileModal user={getSenderFull(user, selectedChat.users)} />
+            ) : (
+              <UpdateGroupChatModal
+                fetchMessages={fetchMessages}
+                fetchAgain={fetchAgain}
+                setFetchAgain={setFetchAgain}
+              />
+            )}
+          </Box>
 
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
-              justifyContent: "flex-end",
               p: 2,
-              bgcolor: "#E8E8E8",
+              bgcolor: "#2A2A2A",
               width: "100%",
               height: "100%",
-              borderRadius: 2,
+              borderRadius: "10px",
               overflowY: "auto",
+              color: "width",
             }}
           >
             {loading ? (
-              <CircularProgress
-                sx={{ alignSelf: "center", margin: "auto" }}
-                size={50}
-              />
+              <CircularProgress sx={{ alignSelf: "center", mt: 2 }} size={50} />
             ) : (
-              <div className="messages">
-                <ScrollableChat messages={messages} />
-              </div>
+              <ScrollableChat messages={messages} />
             )}
 
-            <Box sx={{ mt: 2 }}>
-              {istyping && (
-                <Lottie
-                  options={defaultOptions}
-                  width={70}
-                  style={{ marginBottom: 15 }}
-                />
-              )}
+            {istyping && (
+              <Lottie
+                options={defaultOptions}
+                width={70}
+                height={30}
+                style={{ marginBottom: 15 }}
+              />
+            )}
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                bgcolor: "#3A3A3A",
+                borderRadius: "10px",
+                p: 1,
+                mt: 2,
+              }}
+            >
               <TextField
                 fullWidth
-                variant="filled"
+                variant="standard"
                 placeholder="Enter a message..."
                 value={newMessage}
                 onChange={typingHandler}
                 onKeyDown={sendMessage}
                 sx={{
-                  backgroundColor: "#E0E0E0",
-                  borderRadius: 1,
+                  input: {
+                    color: "white",
+                    fontFamily: "'Poppins', sans-serif",
+                  },
                 }}
               />
-              <IconButton
-                onClick={() => sendMessage({ key: "Enter" })} // Simulate Enter key event
-                color="primary"
-              >
-                <SendIcon />
+              <IconButton onClick={() => sendMessage({ key: "Enter" })}>
+                <SendIcon sx={{ color: "#00A86B" }} />
               </IconButton>
             </Box>
           </Box>
         </>
       ) : (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-          }}
-        >
-          <Typography variant="h4">
-            Click on a user to start chatting
-          </Typography>
-        </Box>
+        <Typography variant="h5" sx={{ textAlign: "center", mt: 5 }}>
+          Click on a user to start chatting
+        </Typography>
       )}
-
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={5000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

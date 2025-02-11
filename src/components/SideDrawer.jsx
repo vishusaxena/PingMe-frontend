@@ -48,16 +48,12 @@ const ChatHeader = () => {
       toast.warning("Please enter something in search", {
         position: "top-left",
         autoClose: 5000,
-        closeOnClick: true,
       });
       return;
     }
-
     try {
       setLoading(true);
-      const config = {
-        headers: { Authorization: `Bearer ${user.token}` },
-      };
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
       const { data } = await axios.get(
         `http://localhost:5000/api/user?search=${search}`,
         config
@@ -68,14 +64,12 @@ const ChatHeader = () => {
       toast.error("Error occurred! Failed to load search results", {
         position: "bottom-left",
         autoClose: 5000,
-        closeOnClick: true,
       });
       setLoading(false);
     }
   };
 
   const accessChat = async (userId) => {
-    console.log(userId);
     try {
       setLoadingChat(true);
       const config = {
@@ -89,16 +83,14 @@ const ChatHeader = () => {
         { userId },
         config
       );
-
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       setLoadingChat(false);
-      setDrawerOpen(false); // Close the drawer after selecting a user
+      setDrawerOpen(false);
     } catch (error) {
       toast.error("Error fetching the chat", {
         position: "bottom-left",
         autoClose: 5000,
-        closeOnClick: true,
       });
       setLoadingChat(false);
     }
@@ -108,33 +100,43 @@ const ChatHeader = () => {
     <>
       <Box
         display="flex"
-        justifyContent="space-between"
+        justifyContent="space-around"
         alignItems="center"
-        bgcolor="#121212"
+        bgcolor="#1E1E2F"
+        p={2}
         width="100%"
-        padding="5px 10px"
         color="white"
-        border={1}
+        borderBottom="2px solid #333"
       >
         <Tooltip title="Search Users to chat" arrow placement="bottom-end">
           <Button
             variant="text"
             startIcon={<SearchIcon />}
             onClick={() => setDrawerOpen(true)}
+            sx={{ color: "#E0E0E0" }}
           >
-            <Typography sx={{ display: { xs: "none", md: "inline" }, px: 2 }}>
+            <Typography
+              sx={{
+                display: { xs: "none", md: "inline" },
+                fontFamily: "Poppins, sans-serif",
+              }}
+            >
               Search User
             </Typography>
           </Button>
         </Tooltip>
-        <Typography variant="h6" fontFamily="Work Sans">
+        <Typography
+          variant="h5"
+          fontFamily="Poppins, sans-serif"
+          fontWeight="bold"
+        >
           PingMe
         </Typography>
-        <Box display="flex" alignItems="center" color="white">
+        <Box display="flex" alignItems="center">
           <IconButton
             onClick={(e) => setNotificationMenuAnchor(e.currentTarget)}
           >
-            <NotificationsIcon fontSize="large" sx={{ color: "white" }} />
+            <NotificationsIcon fontSize="large" sx={{ color: "#E0E0E0" }} />
           </IconButton>
           <Menu
             anchorEl={notificationMenuAnchor}
@@ -144,8 +146,11 @@ const ChatHeader = () => {
             <MenuItem>No New Messages</MenuItem>
           </Menu>
           <IconButton onClick={(e) => setProfileMenuAnchor(e.currentTarget)}>
-            <Avatar sx={{ width: 32, height: 32, border: 1 }} src={user.pic} />
-            <ExpandMoreIcon />
+            <Avatar
+              sx={{ width: 36, height: 36, border: "2px solid #E0E0E0" }}
+              src={user.pic}
+            />
+            <ExpandMoreIcon sx={{ color: "#E0E0E0" }} />
           </IconButton>
           <Menu
             anchorEl={profileMenuAnchor}
@@ -168,35 +173,53 @@ const ChatHeader = () => {
         <Box
           sx={{
             width: 350,
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
+            p: 3,
+            bgcolor: "#2C2C3E",
             height: "100%",
+            color: "white",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{ flexGrow: 1, fontFamily: "Poppins, sans-serif" }}
+            >
               Search Users
             </Typography>
             <IconButton onClick={() => setDrawerOpen(false)}>
-              <CloseIcon />
+              <CloseIcon sx={{ color: "#E0E0E0" }} />
             </IconButton>
           </Box>
-          <Divider />
-          <Box sx={{ display: "flex", alignItems: "center", mt: 2, mb: 2 }}>
+          <Divider sx={{ bgcolor: "#555" }} />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              mt: 2,
+              mb: 2,
+              borderRadius: 1,
+              bgcolor: "#3C3C4E",
+              p: 1,
+            }}
+          >
             <InputBase
               placeholder="Search by name or email"
               fullWidth
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              sx={{ p: 1, border: "1px solid #ccc", borderRadius: 1 }}
+              sx={{ color: "white" }}
             />
-            <Button onClick={handleSearch} sx={{ ml: 1 }}>
+            <Button
+              onClick={handleSearch}
+              sx={{ ml: 1, bgcolor: "#5C5CE6", color: "white" }}
+            >
               Go
             </Button>
           </Box>
           {loading ? (
-            <CircularProgress sx={{ alignSelf: "center", mt: 2 }} />
+            <CircularProgress
+              sx={{ alignSelf: "center", mt: 2, color: "white" }}
+            />
           ) : (
             <List>
               {searchResult.map((user) => (
@@ -205,13 +228,19 @@ const ChatHeader = () => {
                   key={user._id}
                   onClick={() => accessChat(user._id)}
                 >
-                  <ListItemText primary={user.name} secondary={user.email} />
+                  <ListItemText
+                    primary={user.name}
+                    secondary={user.email}
+                    sx={{ color: "white" }}
+                  />
                 </ListItem>
               ))}
             </List>
           )}
           {loadingChat && (
-            <CircularProgress sx={{ alignSelf: "center", mt: 2 }} />
+            <CircularProgress
+              sx={{ alignSelf: "center", mt: 2, color: "white" }}
+            />
           )}
         </Box>
       </Drawer>

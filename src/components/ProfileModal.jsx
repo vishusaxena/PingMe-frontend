@@ -19,7 +19,7 @@ const ProfileModal = ({ user, children }) => {
       {children ? (
         <span onClick={handleOpen}>{children}</span>
       ) : (
-        <IconButton onClick={handleOpen}>
+        <IconButton onClick={handleOpen} sx={{ color: "white" }}>
           <Visibility />
         </IconButton>
       )}

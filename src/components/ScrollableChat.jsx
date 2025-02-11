@@ -7,13 +7,16 @@ import {
   isSameUser,
 } from "../config/ChatLogics";
 import { ChatState } from "../Context/ChatProvider";
+import { useEffect } from "react"; // Import
 
 const ScrollableChat = ({ messages }) => {
   const { user } = ChatState();
 
   // Debugging: Log the type and value of messages
-  console.log("Messages received in ScrollableChat:", messages);
-  console.log("Type of messages:", typeof messages);
+
+  useEffect(() => {
+    console.log("Messages updated in ScrollableChat:", messages);
+  }, [messages]); // Log only when messages update
 
   // Check if messages is an array
   if (!Array.isArray(messages)) {
@@ -44,7 +47,7 @@ const ScrollableChat = ({ messages }) => {
           <span
             style={{
               backgroundColor:
-                m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0",
+                m.sender._id === user._id ? "blueviolet" : "blue",
               marginLeft: isSameSenderMargin(messages, m, i, user._id),
               marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
               borderRadius: "20px",

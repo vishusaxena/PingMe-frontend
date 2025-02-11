@@ -127,7 +127,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
   return (
     <>
       <Tooltip title="View Group Info">
-        <IconButton onClick={handleOpen}>
+        <IconButton onClick={handleOpen} sx={{ color: "white" }}>
           <Visibility />
         </IconButton>
       </Tooltip>

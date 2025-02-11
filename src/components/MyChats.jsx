@@ -52,13 +52,14 @@ const MyChats = ({ fetchAgain }) => {
     <Box
       sx={{
         width: "40vw",
-        height: "100%",
+        height: "78vh",
         bgcolor: "#121212",
         color: "white",
         p: 2,
-        borderRadius: 2,
+
         boxShadow: 3,
         overflowY: "auto",
+        borderRadius: "10px",
       }}
     >
       <Typography

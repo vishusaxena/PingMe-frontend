@@ -8,24 +8,58 @@ import ChatBox from "../components/ChatBox";
 const ChatPage = () => {
   const { user } = ChatState();
   const [fetchAgain, setFetchAgain] = useState(false);
+
   return (
-    <div style={{ width: "100%" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        color: "white",
+        fontFamily: "'Poppins', sans-serif",
+      }}
+    >
       {user && <SideDrawer />}
+
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
-          width: "70%",
-          height: "91.5vh",
-          padding: "10px",
+          justifyContent: "space-around",
+          height: "90vh",
+          width: "100%",
+          padding: "1rem",
+          gap: "1rem",
         }}
       >
-        {user && <MyChats fetchAgain={fetchAgain} />}
         {user && (
-          <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+          <Box
+            sx={{
+              flex: 1,
+              borderRadius: "10px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.5)",
+              padding: "10px",
+            }}
+          >
+            <MyChats fetchAgain={fetchAgain} />
+          </Box>
+        )}
+        {user && (
+          <Box
+            sx={{
+              flex: 2,
+              bgcolor: "#1E1E1E",
+              borderRadius: "10px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.5)",
+              padding: "10px",
+              height: "78vh",
+              marginTop: "10px",
+            }}
+          >
+            <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+          </Box>
         )}
       </Box>
-    </div>
+    </Box>
   );
 };
 
