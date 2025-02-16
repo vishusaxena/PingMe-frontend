@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import {
   Box,
@@ -21,7 +21,7 @@ import UpdateGroupChatModal from "./UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://pingme-backend-p56z.onrender.com";
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -38,7 +38,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const { selectedChat, setSelectedChat, user, notification, setNotification } =
     ChatState();
-
+  const selectedChatRef = useRef(null);
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -56,7 +56,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       };
       setLoading(true);
       const { data } = await axios.get(
-        `http://localhost:5000/api/message/${selectedChat._id}`,
+        `https://pingme-backend-p56z.onrender.com/api/message/${selectedChat._id}`,
         config
       );
       setMessages(data);
@@ -88,10 +88,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           chatId: selectedChat?._id, // Ensure chatId is valid
         };
 
-        console.log("Sending message:", requestData); // Debug request
-
         const { data } = await axios.post(
-          "http://localhost:5000/api/message",
+          "https://pingme-backend-p56z.onrender.com/api/message",
           requestData,
           config
         );
@@ -100,7 +98,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setMessages((prevMessages) => [...prevMessages, data]); // Update UI immediately
         socket.emit("new message", data); // Emit message to socket
       } catch (error) {
-        console.error("Send message error:", error.response?.data || error);
         setSnackbarMessage("Failed to send the Message");
         setSnackbarSeverity("error");
         setOpenSnackbar(true);
@@ -111,7 +108,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket = io(ENDPOINT);
     socket.emit("setup", user);
-    socket.on("connected", () => setSocketConnected(true));
+    socket.on("connected", () => {
+      setSocketConnected(true);
+      console.log("Socket connected!"); //
+    });
+
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
 
@@ -121,21 +122,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, []);
 
   useEffect(() => {
-    if (selectedChat) {
-      fetchMessages();
-      selectedChatCompare = selectedChat;
-    }
+    if (!selectedChat || selectedChatRef.current === selectedChat._id) return;
+
+    selectedChatRef.current = selectedChat._id;
+    fetchMessages();
+
+    setNotification((prev) =>
+      prev.filter((n) => n.chat._id !== selectedChat._id)
+    );
   }, [selectedChat]);
 
+  console.log(notification, "-------");
   useEffect(() => {
     const messageHandler = (newMessageReceived) => {
+      console.log("New Message Received:", newMessageReceived);
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
-        if (!notification.some((n) => n._id === newMessageReceived._id)) {
+        if (!notification.includes(newMessageReceived)) {
           setNotification((prev) => [newMessageReceived, ...prev]);
-          setFetchAgain((prev) => !prev);
+          setFetchAgain(!fetchAgain);
         }
       } else {
         setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
@@ -212,7 +219,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               flexDirection: "column",
               p: 2,
               bgcolor: "#2A2A2A",
-              width: "100%",
+              width: "80%",
               height: "100%",
               borderRadius: "10px",
               overflowY: "auto",
@@ -220,7 +227,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             }}
           >
             {loading ? (
-              <CircularProgress sx={{ alignSelf: "center", mt: 2 }} size={50} />
+              <CircularProgress
+                sx={{ alignSelf: "center", mt: 2, marginBottom: 29 }}
+                size={50}
+              />
             ) : (
               <ScrollableChat messages={messages} />
             )}

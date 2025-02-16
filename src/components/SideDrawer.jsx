@@ -35,7 +35,15 @@ const ChatHeader = () => {
   const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const { user, chats, setChats, setSelectedChat } = ChatState();
+  const {
+    user,
+    chats,
+    setChats,
+    setSelectedChat,
+    notification,
+    setNotification,
+  } = ChatState(); // Integrated notification state
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -55,7 +63,7 @@ const ChatHeader = () => {
       setLoading(true);
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       const { data } = await axios.get(
-        `http://localhost:5000/api/user?search=${search}`,
+        `https://pingme-backend-p56z.onrender.com/api/user?search=${search}`,
         config
       );
       setSearchResult(data);
@@ -79,7 +87,7 @@ const ChatHeader = () => {
         },
       };
       const { data } = await axios.post(
-        `http://localhost:5000/api/chat`,
+        `https://pingme-backend-p56z.onrender.com/api/chat`,
         { userId },
         config
       );
@@ -106,7 +114,6 @@ const ChatHeader = () => {
         p={2}
         width="100%"
         color="white"
-        borderBottom="2px solid #333"
       >
         <Tooltip title="Search Users to chat" arrow placement="bottom-end">
           <Button
@@ -137,13 +144,46 @@ const ChatHeader = () => {
             onClick={(e) => setNotificationMenuAnchor(e.currentTarget)}
           >
             <NotificationsIcon fontSize="large" sx={{ color: "#E0E0E0" }} />
+            {notification.length > 0 && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  backgroundColor: "red",
+                  color: "white",
+                  borderRadius: "50%",
+                  width: 18,
+                  height: 18,
+                  fontSize: "0.75rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {notification.length}
+              </Box>
+            )}
           </IconButton>
           <Menu
             anchorEl={notificationMenuAnchor}
             open={Boolean(notificationMenuAnchor)}
             onClose={() => setNotificationMenuAnchor(null)}
           >
-            <MenuItem>No New Messages</MenuItem>
+            {!notification.length && <MenuItem>No New Messages</MenuItem>}
+            {notification.map((notif) => (
+              <MenuItem
+                key={notif._id}
+                onClick={() => {
+                  setSelectedChat(notif.chat);
+                  setNotification(notification.filter((n) => n !== notif));
+                }}
+              >
+                {notif.chat.isGroupChat
+                  ? `New Message in ${notif.chat.chatName}`
+                  : `New Message from ${notif.chat.users[0].name}`}
+              </MenuItem>
+            ))}
           </Menu>
           <IconButton onClick={(e) => setProfileMenuAnchor(e.currentTarget)}>
             <Avatar

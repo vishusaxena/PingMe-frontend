@@ -39,8 +39,13 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
     try {
       setLoading(true);
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      const { data } = await axios.get(`/api/user?search=${query}`, config);
-      setSearchResult(data);
+      const { data } = await axios.get(
+        `https://pingme-backend-p56z.onrender.com/api/user?search=${query}`,
+        config
+      );
+      console.log("Search Result:", data);
+
+      setSearchResult(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
       console.error("Search failed:", error);
@@ -55,7 +60,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
       setRenameLoading(true);
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       const { data } = await axios.put(
-        `http://localhost:5000/api/chat/rename`,
+        `https://pingme-backend-p56z.onrender.com/api/chat/rename`,
         { chatId: selectedChat._id, chatName: groupChatName },
         config
       );
@@ -85,7 +90,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
       setLoading(true);
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       const { data } = await axios.put(
-        `http://localhost:5000/api/chat/groupadd`,
+        `https://pingme-backend-p56z.onrender.com/api/chat/groupadd`,
         { chatId: selectedChat._id, userId: user1._id },
         config
       );
@@ -109,7 +114,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
       setLoading(true);
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       const { data } = await axios.put(
-        `http://localhost:5000/api/chat/groupremove`,
+        `https://pingme-backend-p56z.onrender.com/api/chat/groupremove`,
         { chatId: selectedChat._id, userId: user1._id },
         config
       );
@@ -181,6 +186,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
                 key={user._id}
                 user={user}
                 handleFunction={() => handleAddUser(user)}
+                isGroupChat={true}
               />
             ))
           )}

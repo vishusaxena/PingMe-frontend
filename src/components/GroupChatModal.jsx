@@ -47,7 +47,7 @@ const GroupChatModal = ({ children }) => {
         headers: { Authorization: `Bearer ${user.token}` },
       };
       const { data } = await axios.get(
-        `http://localhost:5000/api/user?search=${query}`,
+        `https://pingme-backend-p56z.onrender.com/api/user?search=${query}`,
         config
       );
       setLoading(false);
@@ -73,7 +73,7 @@ const GroupChatModal = ({ children }) => {
         headers: { Authorization: `Bearer ${user.token}` },
       };
       const { data } = await axios.post(
-        `http://localhost:5000/api/chat/group`,
+        `https://pingme-backend-p56z.onrender.com/api/chat/group`,
         {
           name: groupChatName,
           users: JSON.stringify(selectedUsers.map((u) => u._id)),
@@ -137,6 +137,7 @@ const GroupChatModal = ({ children }) => {
                   key={user._id}
                   user={user}
                   handleFunction={() => handleGroup(user)}
+                  isGroupChat={true}
                 />
               ))
           )}

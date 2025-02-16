@@ -7,7 +7,7 @@ import {
   ListItemText,
 } from "@mui/material";
 
-const UserListItem = ({ user, handleFunction }) => {
+const UserListItem = ({ user, handleFunction, isGroupChat = false }) => {
   return (
     <ListItem
       onClick={handleFunction}
@@ -20,9 +20,12 @@ const UserListItem = ({ user, handleFunction }) => {
         p: 1.5,
       }}
     >
-      <ListItemAvatar>
-        <Avatar alt={user.name} src={user.pic} />
-      </ListItemAvatar>
+      {/* {!isGroupChat && ( // Hide avatar if it's a group chat
+        <ListItemAvatar>
+          <Avatar alt={user.name} src={user.pic} />
+        </ListItemAvatar>
+      )} */}
+
       <ListItemText
         primary={
           <Typography variant="body1" fontWeight="bold">

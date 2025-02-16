@@ -12,7 +12,6 @@ const Chatbox = ({ fetchAgain, setFetchAgain }) => {
         alignItems: "center",
         flexDirection: "column",
         p: 3,
-        width: "92%",
 
         color: "white",
         fontFamily: "'Poppins', sans-serif",

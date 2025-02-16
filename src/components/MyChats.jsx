@@ -29,7 +29,7 @@ const MyChats = ({ fetchAgain }) => {
         headers: { Authorization: `Bearer ${user.token}` },
       };
       const { data } = await axios.get(
-        "http://localhost:5000/api/chat",
+        "https://pingme-backend-p56z.onrender.com/api/chat",
         config
       );
       setChats(data);
@@ -45,6 +45,8 @@ const MyChats = ({ fetchAgain }) => {
   };
 
   useEffect(() => {
+    if (!user || chats.length > 0) return; // Don't refetch if chats already exist
+
     fetchChats();
   }, [user, fetchAgain]);
 
@@ -92,7 +94,11 @@ const MyChats = ({ fetchAgain }) => {
                 key={chat._id}
                 button
                 selected={selectedChat?._id === chat._id}
-                onClick={() => setSelectedChat(chat)}
+                onClick={() => {
+                  if (selectedChat?._id !== chat._id) {
+                    setSelectedChat(chat);
+                  }
+                }}
                 sx={{
                   borderRadius: 2,
                   mb: 1,
@@ -103,7 +109,11 @@ const MyChats = ({ fetchAgain }) => {
               >
                 <ListItemAvatar>
                   <Avatar
-                    src={chat.users.find((u) => u._id !== user._id)?.pic}
+                    src={
+                      chat.isGroupChat
+                        ? "https://via.placeholder.com/150?text=Group" // Online default avatar for group chats
+                        : chat.users.find((u) => u._id !== user._id)?.pic
+                    }
                   />
                 </ListItemAvatar>
                 <ListItemText
@@ -115,7 +125,7 @@ const MyChats = ({ fetchAgain }) => {
                   secondary={
                     chat.latestMessage?.content || "No recent messages"
                   }
-                  sx={{ color: "rgba(255,255,255,0.7)" }}
+                  sx={{ color: "white" }}
                 />
               </ListItem>
             ))

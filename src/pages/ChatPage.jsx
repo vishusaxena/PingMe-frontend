@@ -15,6 +15,8 @@ const ChatPage = () => {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
+
+        width: "100vw",
         color: "white",
         fontFamily: "'Poppins', sans-serif",
       }}
@@ -26,7 +28,7 @@ const ChatPage = () => {
           display: "flex",
           justifyContent: "space-around",
           height: "90vh",
-          width: "100%",
+          width: "100vw",
           padding: "1rem",
           gap: "1rem",
         }}
@@ -49,9 +51,8 @@ const ChatPage = () => {
               flex: 2,
               bgcolor: "#1E1E1E",
               borderRadius: "10px",
-              boxShadow: "0px 4px 10px rgba(0,0,0,0.5)",
-              padding: "10px",
-              height: "78vh",
+
+              height: "83vh",
               marginTop: "10px",
             }}
           >
