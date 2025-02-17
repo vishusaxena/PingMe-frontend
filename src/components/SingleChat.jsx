@@ -49,20 +49,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const fetchMessages = async () => {
-    if (!selectedChat) return;
+    if (!selectedChat || !user?.token) return;
+
     try {
       const config = {
         headers: { Authorization: `Bearer ${user.token}` },
       };
+
       setLoading(true);
+      console.log("Fetching messages for chat:", selectedChat._id);
+
       const { data } = await axios.get(
         `https://pingme-backend-p56z.onrender.com/api/message/${selectedChat._id}`,
         config
       );
+
       setMessages(data);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
+      console.error("Error fetching messages:", error.response?.data || error);
       setSnackbarMessage("Failed to Load Messages");
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
@@ -70,8 +76,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const sendMessage = async (event) => {
-    if (event.key === "Enter" || event.type === "click") {
-      if (!newMessage.trim()) return; // Prevent sending empty messages
+    if (
+      (event.key === "Enter" || event.type === "click") &&
+      newMessage.trim()
+    ) {
+      if (!selectedChat || !user?.token) {
+        setSnackbarMessage("Chat not selected or user not authenticated");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+        return;
+      }
 
       socket.emit("stop typing", selectedChat._id);
 
@@ -85,8 +99,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
         const requestData = {
           content: newMessage.trim(),
-          chatId: selectedChat?._id, // Ensure chatId is valid
+          chatId: selectedChat._id,
         };
+
+        console.log("Sending message:", requestData);
 
         const { data } = await axios.post(
           "https://pingme-backend-p56z.onrender.com/api/message",
@@ -94,10 +110,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           config
         );
 
-        setNewMessage(""); // Clear input
-        setMessages((prevMessages) => [...prevMessages, data]); // Update UI immediately
-        socket.emit("new message", data); // Emit message to socket
+        setNewMessage("");
+        setMessages((prevMessages) => [...prevMessages, data]);
+        socket.emit("new message", data);
       } catch (error) {
+        console.error("Error sending message:", error.response?.data || error);
         setSnackbarMessage("Failed to send the Message");
         setSnackbarSeverity("error");
         setOpenSnackbar(true);
@@ -122,15 +139,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, []);
 
   useEffect(() => {
-    if (!selectedChat || selectedChatRef.current === selectedChat._id) return;
+    if (!selectedChat || !user?.token) return;
 
+    if (selectedChatRef.current === selectedChat._id) return;
     selectedChatRef.current = selectedChat._id;
+
     fetchMessages();
 
     setNotification((prev) =>
       prev.filter((n) => n.chat._id !== selectedChat._id)
     );
-  }, [selectedChat]);
+  }, [selectedChat, user]);
 
   console.log(notification, "-------");
   useEffect(() => {
